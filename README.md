@@ -1,1 +1,1 @@
-# electronic-queue-project
+# electronic-queue-projectdotnet run --project src/App --no-launch-profile -- --urls http://localhost:5080
