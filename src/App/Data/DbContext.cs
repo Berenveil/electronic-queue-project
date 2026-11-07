@@ -20,5 +20,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<EmployeeService>()
             .HasKey(x => new { x.EmployeeId, x.ServiceId });
             
+
     }
 }
