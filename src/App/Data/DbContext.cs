@@ -20,6 +20,37 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<EmployeeService>()
             .HasKey(x => new { x.EmployeeId, x.ServiceId });
             
+        modelBuilder.Entity<EmployeeService>()
+            .HasOne(x => x.Employee)
+            .WithMany(e => e.EmployeeServices)
+            .HasForeignKey(x => x.EmployeeId);
 
+        modelBuilder.Entity<EmployeeService>()
+            .HasOne(x => x.Service)
+            .WithMany(s => s.EmployeeServices)
+            .HasForeignKey(x => x.ServiceId);
+
+        modelBuilder.Entity<Appointment>()
+            .HasIndex(a => a.TicketNumber)
+            .IsUnique();
+
+        modelBuilder.Entity<Appointment>()
+            .HasIndex(a => new { a.EmployeeId, a.ScheduledAt })
+            .IsUnique();
+
+        modelBuilder.Entity<Client>()
+            .HasIndex(c => c.Phone)
+            .IsUnique();
+        modelBuilder.Entity<Schedule>()
+            .HasIndex(s => new { s.EmployeeId, s.WorkDate })
+            .IsUnique();
+
+        modelBuilder.Entity<Appointment>()
+            .Property(a => a.Status)
+            .HasMaxLength(20);
+
+        modelBuilder.Entity<Appointment>()
+            .Property(a => a.TicketNumber)
+            .HasMaxLength(32);
     }
 }
