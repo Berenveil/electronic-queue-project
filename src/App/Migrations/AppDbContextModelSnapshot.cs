@@ -46,21 +46,27 @@ namespace App.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
+                        .HasMaxLength(20)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("TicketNumber")
                         .IsRequired()
+                        .HasMaxLength(32)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ClientId");
 
-                    b.HasIndex("EmployeeId");
-
                     b.HasIndex("RoomId");
 
                     b.HasIndex("ServiceId");
+
+                    b.HasIndex("TicketNumber")
+                        .IsUnique();
+
+                    b.HasIndex("EmployeeId", "ScheduledAt")
+                        .IsUnique();
 
                     b.ToTable("Appointments");
                 });
@@ -104,6 +110,9 @@ namespace App.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Phone")
+                        .IsUnique();
 
                     b.ToTable("Clients");
                 });
@@ -203,7 +212,8 @@ namespace App.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EmployeeId");
+                    b.HasIndex("EmployeeId", "WorkDate")
+                        .IsUnique();
 
                     b.ToTable("Schedules");
                 });
@@ -231,7 +241,7 @@ namespace App.Migrations
 
                     b.HasIndex("ProfessionId");
 
-                    b.ToTable("Service");
+                    b.ToTable("Services");
                 });
 
             modelBuilder.Entity("App.Data.Entities.Appointment", b =>
