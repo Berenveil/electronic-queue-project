@@ -3,25 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Проект электронной очереди</title>
+    <title>Врачи — Больница</title>
     <link rel="stylesheet" href="/css/site.css">
     <script src="/js/site.js" defer></script>
 </head>
 <body>
-    <header class = "header">
-        <a class = "icon" href="./index.html"><span class = "brand" aria-hidden="true"></span> Больница</a>
-        <span class = "addres">Адреса клиник</span>
+    <header class="header">
+        <a class="icon" href="./index.html"><span class="brand" aria-hidden="true">+</span> Больница</a>
+        <span class="address">Адреса клиник</span>
     </header>
-    <main class = "container">
-        <div class = "text">
-            <p class = "doctors">Врачи</p>
-            <h1>Найдите своего специалиста</h1>
+    <main class="container">
+        <div class="text">
+            <p class="doctors">Врачи</p>
+            <h1 id="doctors-heading">Найдите своего специалиста</h1>
             <p>Вы можете выбрать понравившегося вам специалиста и удобное время приема</p>
         </div>
 
-        <section>
-            
+        <section class="doctors-section" aria-labelledby="doctors-heading">
+            <p id="doctors-status" class="doctors-status" role="status">Загружаем врачей…</p>
+            <div id="doctors-list" class="doctors-list" aria-busy="true"></div>
+            <noscript>Включите JavaScript, чтобы увидеть список врачей.</noscript>
         </section>
     </main>
+
+    <template id="doctor-template">
+        <article class="doctor-card">
+            <div class="doctor-profile">
+                <div class="doctor-photo" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
+                        <circle cx="12" cy="8" r="4"></circle>
+                        <path d="M5 21v-3a7 7 0 0 1 14 0v3"></path>
+                    </svg>
+                    <span>Фото врача</span>
+                </div>
+                <div class="doctor-info">
+                    <h2 class="doctor-name"></h2>
+                    <p class="doctor-profession"></p>
+                    <details class="doctor-details">
+                        <summary>Подробнее о враче</summary>
+                        <div class="doctor-details-content">
+                            <p class="doctor-services-heading">Услуги врача</p>
+                            <ul class="doctor-services"></ul>
+                        </div>
+                    </details>
+                </div>
+            </div>
+            <div class="doctor-appointment">
+                <p class="doctor-price"></p>
+                <p class="doctor-service"></p>
+                <div class="doctor-schedule">
+                    <p class="doctor-date">Расписание уточняется</p>
+                    <p class="doctor-availability">Свободное время пока не указано</p>
+                </div>
+                <button class="appointment-button" type="button" disabled>Записаться на приём</button>
+            </div>
+        </article>
+    </template>
 </body>
 </html>
