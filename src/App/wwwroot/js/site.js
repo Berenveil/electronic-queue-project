@@ -1,3 +1,32 @@
+// Пути к фотографиям внутри wwwroot/images/doctors.
+// Слева — ID из базы, а не порядковый номер карточки на странице.
+const doctorPhotos = {
+    1: "man/1.png",      // Иванов Артём Сергеевич
+    2: "woman/1.png",    // Смирнова Анна Дмитриевна
+    3: "man/2.png",      // Козлов Максим Александрович
+    4: "woman/2.png",    // Петрова Елена Владимировна
+    5: "man/3.png",      // Соколов Игорь Николаевич
+    6: "woman/3.png",    // Морозова Ольга Игоревна
+    7: "man/4.png",      // Лебедев Дмитрий Петрович
+    8: "woman/4.png",    // Кузнецова Мария Андреевна
+    9: "man/5.png",      // Новиков Алексей Викторович
+    10: "woman/5.png",   // Фёдорова Татьяна Сергеевна
+    11: "man/6.png",     // Морозов Андрей Игоревич
+    12: "woman/6.png",   // Волкова Наталья Алексеевна
+    13: "man/7.png",     // Арутюнян Арман Каренович
+    14: "woman/7.png",   // Григорян Анна Сааковна
+    15: "man/8.png",     // Саркисян Давид Арменович
+    16: "woman/8.png",   // Оганесян Лиана Рудольфовна
+    17: "woman/9.png",   // Васильева Екатерина Павловна
+    18: "woman/10.png",  // Михайлова Юлия Романовна
+    19: "man/9.png",     // Алексанян Гарик Вагаршакович
+    20: "woman/11.png",  // Петросян Мариам Ашотовна
+    21: "woman/12.png",  // Орлова Виктория Андреевна
+    22: "man/10.png",    // Павлов Сергей Михайлович
+    23: "woman/13.png",  // Акопян Наре Варужановна
+    24: "man/11.png",    // Мартиросян Тигран Арташесович
+};
+
 async function loadDoctors() {
     const list = document.querySelector("#doctors-list");
     const template = document.querySelector("#doctor-template");
@@ -23,11 +52,31 @@ async function loadDoctors() {
 
             card.querySelector(".doctor-card").dataset.doctorId = doctor.id;
 
-            card.querySelector(".doctor-name").textContent = [
+            const fullName = [
                 doctor.lastName,
                 doctor.firstName,
                 doctor.middleName
             ].filter(Boolean).join(" ");
+            card.querySelector(".doctor-name").textContent = fullName;
+
+            const photoFile = doctorPhotos[doctor.id];
+            if (photoFile) {
+                const photo = card.querySelector(".doctor-photo-image");
+                const placeholder = card.querySelector(".doctor-photo-placeholder");
+
+                photo.alt = `Фотография: ${fullName}`;
+                photo.addEventListener("load", () => {
+                    photo.classList.add("is-loaded");
+                    placeholder.hidden = true;
+                }, { once: true });
+                photo.addEventListener("error", () => {
+                    photo.hidden = true;
+                    placeholder.hidden = false;
+                }, { once: true });
+                photo.hidden = false;
+                const photoPath = photoFile.split("/").map(encodeURIComponent).join("/");
+                photo.src = `/images/doctors/${photoPath}`;
+            }
 
             card.querySelector(".doctor-profession").textContent =
                 doctor.profession;

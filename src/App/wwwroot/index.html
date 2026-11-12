@@ -29,12 +29,15 @@
     <template id="doctor-template">
         <article class="doctor-card">
             <div class="doctor-profile">
-                <div class="doctor-photo" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
-                        <circle cx="12" cy="8" r="4"></circle>
-                        <path d="M5 21v-3a7 7 0 0 1 14 0v3"></path>
-                    </svg>
-                    <span>Фото врача</span>
+                <div class="doctor-photo">
+                    <img class="doctor-photo-image" alt="" loading="lazy" decoding="async" hidden>
+                    <div class="doctor-photo-placeholder" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
+                            <circle cx="12" cy="8" r="4"></circle>
+                            <path d="M5 21v-3a7 7 0 0 1 14 0v3"></path>
+                        </svg>
+                        <span>Фото врача</span>
+                    </div>
                 </div>
                 <div class="doctor-info">
                     <h2 class="doctor-name"></h2>
