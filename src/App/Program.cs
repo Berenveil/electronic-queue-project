@@ -1,4 +1,5 @@
-using App.Data;   
+using App.Data;
+using App.Features.Tickets;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
 
@@ -6,13 +7,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = new SqliteConnectionStringBuilder(
     builder.Configuration.GetConnectionString("DefaultConnection"));
+
 if (!Path.IsPathRooted(connectionString.DataSource))
 {
-    connectionString.DataSource = Path.Combine(builder.Environment.ContentRootPath, connectionString.DataSource);
+    connectionString.DataSource = Path.Combine(
+        builder.Environment.ContentRootPath,
+        connectionString.DataSource);
 }
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(connectionString.ToString()));
+
+builder.Services.AddScoped<TicketService>();
 
 var app = builder.Build();
 
@@ -23,7 +29,9 @@ using (var scope = app.Services.CreateScope())
 
     if (!db.Professions.Any())
     {
-        var sql = File.ReadAllText(Path.Combine(app.Environment.ContentRootPath, "Data", "Seed_all.sql"));
+        var sql = File.ReadAllText(
+            Path.Combine(app.Environment.ContentRootPath, "Data", "Seed_all.sql"));
+
         using var transaction = db.Database.BeginTransaction();
         db.Database.ExecuteSqlRaw(sql);
         transaction.Commit();
@@ -59,6 +67,32 @@ app.MapGet("/api/doctors", async (AppDbContext db) =>
         .ToListAsync();
 
     return Results.Ok(doctors);
+});
+
+app.MapPost("/api/tickets", async (CreateTicketRequest request, TicketService service) =>
+{
+    try
+    {
+        var result = await service.CreateTicketAsync(request);
+        return Results.Created($"/api/tickets/{result.TicketNumber}", result);
+    }
+    catch (TicketException ex)
+    {
+        return Results.Json(new { error = ex.Message }, statusCode: ex.StatusCode);
+    }
+});
+
+app.MapGet("/api/tickets/{ticketNumber}", async (string ticketNumber, TicketService service) =>
+{
+    try
+    {
+        var result = await service.GetByTicketNumberAsync(ticketNumber);
+        return Results.Ok(result);
+    }
+    catch (TicketException ex)
+    {
+        return Results.Json(new { error = ex.Message }, statusCode: ex.StatusCode);
+    }
 });
 
 app.Run();
