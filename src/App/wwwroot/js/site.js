@@ -27,6 +27,128 @@ const doctorPhotos = {
     24: "man/11.png",    // Мартиросян Тигран Арташесович
 };
 
+const appointmentDialog = document.querySelector("#appointment-dialog");
+const appointmentForm = document.querySelector("#appointment-form");
+const patientFields = [...appointmentForm.querySelectorAll("input:not([type='hidden'])")];
+let appointmentTrigger = null;
+let pointerStartedOnBackdrop = false;
+
+function validatePatientField(field) {
+    field.setCustomValidity("");
+    const value = field.value.trim();
+    let message = "";
+
+    if (field.validity.badInput) {
+        message = "Введите корректную дату рождения.";
+    } else if (field.required && !value) {
+        message = "Заполните это поле.";
+    } else if (field.name === "fullName" && value.split(/\s+/).length < 2) {
+        message = "Укажите фамилию и имя. Отчество — если есть.";
+    } else if (field.name === "birthDate" && field.validity.rangeOverflow) {
+        message = "Дата рождения не может быть в будущем.";
+    } else if (field.name === "phone") {
+        const digits = value.replace(/\D/g, "");
+        if (!/^\+?[\d\s().-]+$/.test(value) || digits.length < 10 || digits.length > 15) {
+            message = "Введите телефон с кодом страны или города, от 10 до 15 цифр.";
+        }
+    } else if (field.name === "email" && field.validity.typeMismatch) {
+        message = "Проверьте адрес почты, например name@example.ru.";
+    }
+
+    if (!message && !field.validity.valid) {
+        message = field.validationMessage;
+    }
+
+    field.setCustomValidity(message);
+    field.setAttribute("aria-invalid", String(Boolean(message)));
+    const error = document.querySelector(`#${field.id}-error`);
+    error.textContent = message;
+    error.hidden = !message;
+    return !message;
+}
+
+function resetAppointmentForm() {
+    appointmentForm.reset();
+    for (const field of patientFields) {
+        field.setCustomValidity("");
+        field.removeAttribute("aria-invalid");
+        const error = document.querySelector(`#${field.id}-error`);
+        error.textContent = "";
+        error.hidden = true;
+    }
+}
+
+function openAppointmentDialog(doctor, trigger) {
+    if (appointmentDialog.open) {
+        return;
+    }
+
+    resetAppointmentForm();
+    appointmentTrigger = trigger;
+    pointerStartedOnBackdrop = false;
+    document.querySelector("#appointment-employee-id").value = doctor.id;
+    document.querySelector("#appointment-doctor-name").textContent =
+        [doctor.lastName, doctor.firstName, doctor.middleName].filter(Boolean).join(" ");
+    document.querySelector("#appointment-doctor-profession").textContent = doctor.profession;
+
+    const today = new Date();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    document.querySelector("#patient-birth-date").max = `${today.getFullYear()}-${month}-${day}`;
+
+    appointmentDialog.showModal();
+    document.body.classList.add("has-open-dialog");
+}
+
+document.querySelector("#appointment-close").addEventListener("click", () => {
+    appointmentDialog.close();
+});
+
+function isOutsideAppointmentDialog(event) {
+    const bounds = appointmentDialog.getBoundingClientRect();
+    return event.clientX < bounds.left || event.clientX > bounds.right ||
+        event.clientY < bounds.top || event.clientY > bounds.bottom;
+}
+
+appointmentDialog.addEventListener("pointerdown", (event) => {
+    pointerStartedOnBackdrop = event.target === appointmentDialog && isOutsideAppointmentDialog(event);
+});
+
+appointmentDialog.addEventListener("click", (event) => {
+    if (pointerStartedOnBackdrop && event.target === appointmentDialog && isOutsideAppointmentDialog(event)) {
+        appointmentDialog.close();
+    }
+    pointerStartedOnBackdrop = false;
+});
+
+appointmentDialog.addEventListener("close", () => {
+    document.body.classList.remove("has-open-dialog");
+    resetAppointmentForm();
+    if (appointmentTrigger?.isConnected) {
+        appointmentTrigger.focus({ preventScroll: true });
+    }
+    appointmentTrigger = null;
+});
+
+for (const field of patientFields) {
+    field.addEventListener("blur", () => {
+        if (appointmentDialog.open) {
+            validatePatientField(field);
+        }
+    });
+    field.addEventListener("input", () => {
+        if (field.getAttribute("aria-invalid") === "true") {
+            validatePatientField(field);
+        }
+    });
+}
+
+appointmentForm.addEventListener("submit", (event) => {
+    // Выдачу талона подключим после появления API и выбора даты и времени.
+    // До этого не отправляем данные, в том числе при нажатии Enter.
+    event.preventDefault();
+});
+
 async function loadDoctors() {
     const list = document.querySelector("#doctors-list");
     const template = document.querySelector("#doctor-template");
@@ -103,6 +225,10 @@ async function loadDoctors() {
             }
 
             card.querySelector(".doctor-details").hidden = !doctor.services.length;
+            const appointmentButton = card.querySelector(".appointment-button");
+            appointmentButton.addEventListener("click", () => {
+                openAppointmentDialog(doctor, appointmentButton);
+            });
             list.append(card);
         }
 

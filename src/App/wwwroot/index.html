@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Врачи — Больница</title>
-    <link rel="stylesheet" href="/css/site.css">
-    <script src="/js/site.js" defer></script>
+    <link rel="stylesheet" href="/css/site.css?v=doctor-cards-1">
+    <script src="/js/site.js?v=appointment-form-1" defer></script>
 </head>
 <body>
     <header class="header">
@@ -13,6 +13,17 @@
         <span class="address">Адреса клиник</span>
     </header>
     <main class="container">
+        <section class="about" aria-label="О клинике">
+            <div class="about-media">
+                <img class="about-image" src="/images/clinic-about.png"
+                     alt="Врач общается с посетителями клиники"
+                     width="1983" height="793" decoding="async">
+            </div>
+            <div class="about-content">
+                <p class="about-description">Мы помогаем взрослым и детям сохранять и восстанавливать здоровье с 2026 года. В нашей больнице доступны точная диагностика, опытные врачи и современное лечение в комфортных условиях.</p>
+            </div>
+        </section>
+
         <div class="text">
             <p class="doctors">Врачи</p>
             <h1 id="doctors-heading">Найдите своего специалиста</h1>
@@ -54,13 +65,104 @@
             <div class="doctor-appointment">
                 <p class="doctor-price"></p>
                 <p class="doctor-service"></p>
-                <div class="doctor-schedule">
-                    <p class="doctor-date">Расписание уточняется</p>
-                    <p class="doctor-availability">Свободное время пока не указано</p>
-                </div>
-                <button class="appointment-button" type="button" disabled>Записаться на приём</button>
+                <fieldset class="doctor-schedule">
+                    <legend class="doctor-date">Расписание врача</legend>
+                    <div class="appointment-week">
+                        <button class="appointment-day" type="button" data-weekday="1" aria-label="Понедельник" disabled>Пн</button>
+                        <button class="appointment-day" type="button" data-weekday="2" aria-label="Вторник" disabled>Вт</button>
+                        <button class="appointment-day" type="button" data-weekday="3" aria-label="Среда" disabled>Ср</button>
+                        <button class="appointment-day" type="button" data-weekday="4" aria-label="Четверг" disabled>Чт</button>
+                        <button class="appointment-day" type="button" data-weekday="5" aria-label="Пятница" disabled>Пт</button>
+                        <button class="appointment-day" type="button" data-weekday="6" aria-label="Суббота" disabled>Сб</button>
+                        <button class="appointment-day" type="button" data-weekday="0" aria-label="Воскресенье" disabled>Вс</button>
+                    </div>
+                    <p class="doctor-availability">Выбор даты и времени пока недоступен.</p>
+                </fieldset>
+                <button class="appointment-button" type="button" aria-haspopup="dialog"
+                        aria-controls="appointment-dialog">Записаться на приём</button>
             </div>
         </article>
     </template>
+
+    <dialog id="appointment-dialog" class="appointment-dialog"
+            aria-labelledby="appointment-title" aria-describedby="appointment-intro">
+        <div class="appointment-dialog-header">
+            <div>
+                <h2 id="appointment-title">Запись на приём</h2>
+                <p id="appointment-intro">Заполните данные пациента.</p>
+            </div>
+            <button id="appointment-close" class="appointment-close" type="button"
+                    aria-label="Закрыть окно записи">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <path d="m6 6 12 12M18 6 6 18"></path>
+                </svg>
+            </button>
+        </div>
+
+        <form id="appointment-form" class="appointment-form" method="dialog">
+            <input id="appointment-employee-id" name="employeeId" type="hidden">
+
+            <div class="appointment-field">
+                <label for="patient-name">ФИО</label>
+                <input id="patient-name" name="fullName" type="text" autocomplete="name"
+                       placeholder="Фамилия Имя Отчество" maxlength="200" required autofocus
+                       aria-describedby="patient-name-error">
+                <p id="patient-name-error" class="appointment-field-error" aria-live="polite" hidden></p>
+            </div>
+
+            <div class="appointment-fields-row">
+                <div class="appointment-field">
+                    <label for="patient-birth-date">Дата рождения</label>
+                    <input id="patient-birth-date" name="birthDate" type="date" autocomplete="bday"
+                           required aria-describedby="patient-birth-date-error">
+                    <p id="patient-birth-date-error" class="appointment-field-error" aria-live="polite" hidden></p>
+                </div>
+                <div class="appointment-field">
+                    <label for="patient-phone">Телефон</label>
+                    <input id="patient-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel"
+                           placeholder="+7 (999) 123-45-67" maxlength="30" required
+                           aria-describedby="patient-phone-error">
+                    <p id="patient-phone-error" class="appointment-field-error" aria-live="polite" hidden></p>
+                </div>
+            </div>
+
+            <div class="appointment-field">
+                <label for="patient-email">Электронная почта <span>необязательно</span></label>
+                <input id="patient-email" name="email" type="email" autocomplete="email"
+                       placeholder="name@example.ru" maxlength="254" aria-describedby="patient-email-error">
+                <p id="patient-email-error" class="appointment-field-error" aria-live="polite" hidden></p>
+            </div>
+
+            <div class="appointment-selected-doctor" role="group" aria-labelledby="appointment-doctor-label">
+                <span class="appointment-doctor-check" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="m5 12 4 4L19 6"></path>
+                    </svg>
+                </span>
+                <div>
+                    <p id="appointment-doctor-label" class="appointment-doctor-label">Выбранный врач</p>
+                    <p id="appointment-doctor-name" class="appointment-doctor-name"></p>
+                    <p id="appointment-doctor-profession" class="appointment-doctor-profession"></p>
+                </div>
+            </div>
+
+            <fieldset class="appointment-schedule" aria-describedby="appointment-schedule-note">
+                <legend>Расписание врача</legend>
+                <div class="appointment-week">
+                    <button class="appointment-day" type="button" data-weekday="1" aria-label="Понедельник" disabled>Пн</button>
+                    <button class="appointment-day" type="button" data-weekday="2" aria-label="Вторник" disabled>Вт</button>
+                    <button class="appointment-day" type="button" data-weekday="3" aria-label="Среда" disabled>Ср</button>
+                    <button class="appointment-day" type="button" data-weekday="4" aria-label="Четверг" disabled>Чт</button>
+                    <button class="appointment-day" type="button" data-weekday="5" aria-label="Пятница" disabled>Пт</button>
+                    <button class="appointment-day" type="button" data-weekday="6" aria-label="Суббота" disabled>Сб</button>
+                    <button class="appointment-day" type="button" data-weekday="0" aria-label="Воскресенье" disabled>Вс</button>
+                </div>
+                <p id="appointment-schedule-note" class="appointment-schedule-note">Расписание уточняется. Выбор даты и времени пока недоступен.</p>
+            </fieldset>
+
+            <button class="appointment-button appointment-submit" type="submit" disabled
+                    aria-describedby="appointment-schedule-note">Подтвердить запись</button>
+        </form>
+    </dialog>
 </body>
 </html>
